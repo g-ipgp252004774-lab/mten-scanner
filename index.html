@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MTEN Scanner</title>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f0e8;
+      color: #40392f;
+      margin: 0;
+      padding: 24px 16px;
+      text-align: center;
+    }
+
+    .kad {
+      background: white;
+      max-width: 420px;
+      margin: 20px auto;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 2px 10px #00000012;
+    }
+
+    h1 { font-size: 25px; }
+
+    button {
+      background: #74664b;
+      color: white;
+      border: 0;
+      border-radius: 10px;
+      padding: 14px 20px;
+      font-size: 16px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    #reader {
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    #status {
+      margin-top: 18px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="kad">
+    <h1>MTEN Scanner</h1>
+    <p>Sistem Imbasan Kehadiran Pelajar</p>
+
+    <button onclick="mula()">Mula Imbasan</button>
+    <button onclick="henti()">Hentikan Kamera</button>
+
+    <div id="reader"></div>
+    <div id="status">Pengimbas belum dimulakan.</div>
+  </div>
+
+  <script>
+    let pengimbas = null;
+    let aktif = false;
+
+    async function mula() {
+      const status = document.getElementById("status");
+
+      if (aktif) return;
+
+      try {
+        status.textContent = "Meminta kebenaran kamera...";
+
+        pengimbas = new Html5Qrcode("reader");
+
+        await pengimbas.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (teksQR) => {
+            status.textContent = "QR berjaya dibaca. Ujian sahaja; kehadiran belum direkodkan.";
+            henti();
+          },
+          () => {}
+        );
+
+        aktif = true;
+        status.textContent = "Kamera aktif. Halakan kamera ke QR ujian.";
+      } catch (ralat) {
+        status.textContent = "Ralat kamera: " + String(ralat);
+      }
+    }
+
+    async function henti() {
+      if (pengimbas && aktif) {
+        try {
+          await pengimbas.stop();
+          pengimbas.clear();
+        } catch (ralat) {
+          console.log(ralat);
+        }
+      }
+
+      aktif = false;
+    }
+  </script>
+</body>
+</html>
