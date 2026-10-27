@@ -82,10 +82,49 @@
         await pengimbas.start(
           { facingMode: "environment" },
           { fps: 10, qrbox: { width: 250, height: 250 } },
-          (teksQR) => {
-            status.textContent = "QR berjaya dibaca. Ujian sahaja; kehadiran belum direkodkan.";
-            henti();
-          },
+        async (teksQR) => {
+  await henti();
+
+  let idPelajar = "";
+
+  try {
+    const urlQR = new URL(teksQR);
+    idPelajar = urlQR.searchParams.get("id") || "";
+  } catch (ralat) {
+    idPelajar = teksQR.trim();
+  }
+
+  if (!idPelajar) {
+    document.getElementById("status").textContent =
+      "ID pelajar tidak ditemui dalam QR.";
+    return;
+  }
+
+  document.getElementById("status").textContent =
+    "QR dibaca. Menguji sambungan...";
+
+  try {
+    const respons = await fetch(
+      "https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbyBHmHPYY5JSbH6m1kw-U3dsN0yFso6xVzA3oN7w3TdS0z-1rYxbyo8Jz6AnWaXuHQ3hA/exec",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({ idPelajar: idPelajar })
+      }
+    );
+
+    const hasil = await respons.json();
+
+    document.getElementById("status").textContent =
+      hasil.mesej || "Respons diterima.";
+  } catch (ralat) {
+    document.getElementById("status").textContent =
+      "Sambungan gagal. Sila semak akses Web App.";
+    console.error(ralat);
+  }
+},
           () => {}
         );
 
