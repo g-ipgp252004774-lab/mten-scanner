@@ -104,16 +104,23 @@
     "QR dibaca. Menguji sambungan...";
 
   try {
-    const respons = await fetch(
-      "https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbyBHmHPYY5JSbH6m1kw-U3dsN0yFso6xVzA3oN7w3TdS0z-1rYxbyo8Jz6AnWaXuHQ3hA/exec",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify({ idPelajar: idPelajar })
-      }
-    );
+  const respons = await fetch(
+  "https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbyBHmHPYY5JSbH6m1kw-U3dsN0yFso6xVzA3oN7w3TdS0z-1rYxbyo8Jz6AnWaXuHQ3hA/exec",
+  {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify({
+      idPelajar: idPelajar
+    })
+  }
+);
+
+document.getElementById("status").textContent =
+  "Permintaan dihantar. Respons belum dapat disahkan.";
+return;
 
     const hasil = await respons.json();
 
